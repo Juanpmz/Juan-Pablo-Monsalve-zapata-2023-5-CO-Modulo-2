@@ -2,7 +2,7 @@ import pygame
 import random
 
 from pygame.sprite import Sprite
-from game.utils.constants import ENEMY_1, SCREEN_HEIGHT, SCREEN_WIDTH
+from game.utils.constants import ENEMY_1, ENEMY_2, SCREEN_HEIGHT, SCREEN_WIDTH
 
 class Enemy(Sprite):
     ENEMY_WIDTH = 40
@@ -14,16 +14,27 @@ class Enemy(Sprite):
     MOV_X = { 0: 'left', 1: 'right' }
 
     def __init__(self):
-        self.image = pygame.transform.scale(ENEMY_1, (self.ENEMY_WIDTH, self.ENEMY_HEIGHT))
+        self.enemy_type = random.choice([ENEMY_1, ENEMY_2])
+        self.image = pygame.transform.scale(self.enemy_type, (self.ENEMY_WIDTH, self.ENEMY_HEIGHT))
         self.rect = self.image.get_rect()
-        self.rect.x = self.X_POS_LIST[random.randint(0, 10)]
+        self.rect.x = random.choice(self.X_POS_LIST)
         self.rect.y = self.Y_POS
         self.speed_x = self.SPEED_X
         self.speed_y = self.SPEED_Y
-        self.movement_x = self.MOV_X[random.randint(0, 1)]
+        self.movement_x = random.choice(list(self.MOV_X.values()))
         self.move_x_for = random.randint(30, 100)
         self.index = 0
+        self.additional_attribute = self.generate_additional_attribute()
 
+    def generate_additional_attribute(self):
+        if self.enemy_type == ENEMY_2:
+            additional_speed = random.randint(2, 6)
+            self.speed_x += additional_speed
+            self.move_x_for //= additional_speed
+            return additional_speed
+        else:
+            return None    
+        
     def update(self, ships):
         self.rect.y += self.speed_y
         
