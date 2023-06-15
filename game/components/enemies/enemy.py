@@ -2,6 +2,7 @@ import pygame
 import random
 
 from pygame.sprite import Sprite
+from game.components.bullets.bullet import Bullet
 from game.utils.constants import ENEMY_1, ENEMY_2, SCREEN_HEIGHT, SCREEN_WIDTH
 
 class Enemy(Sprite):
@@ -21,22 +22,20 @@ class Enemy(Sprite):
         self.rect.y = self.Y_POS
         self.speed_x = self.SPEED_X
         self.speed_y = self.SPEED_Y
-        self.movement_x = random.choice(list(self.MOV_X.values()))
+        self.movement_x = self.MOV_X[random.randint(0, 1)]
         self.move_x_for = random.randint(30, 100)
         self.index = 0
-        self.additional_attribute = self.generate_additional_attribute()
-
-    def generate_additional_attribute(self):
-        if self.enemy_type == ENEMY_2:
-            additional_speed = random.randint(2, 6)
-            self.speed_x += additional_speed
-            self.move_x_for //= additional_speed
-            return additional_speed
-        else:
-            return None    
+        self.type = 'enemy'
+        self.shooting_time = random.randint(30, 50)
         
-    def update(self, ships):
+        self.enemy_type == ENEMY_2
+        additional_speed = random.randint(2, 6)
+        self.speed_x += additional_speed
+        self.move_x_for //= additional_speed  
+        
+    def update(self, ships, game):
         self.rect.y += self.speed_y
+        self.shoot(game.bullet_manager)
         
         if self.movement_x == 'left':
             self.rect.x -= self.speed_x
@@ -59,3 +58,10 @@ class Enemy(Sprite):
         elif (self.index >= self.move_x_for and self.movement_x == 'left') or (self.rect.x <= 10):
             self.movement_x = 'right'
             self.index = 0
+
+    def shoot(self, bullet_manager):
+        current_time = pygame.time.get_ticks()
+        if self.shooting_time <= current_time:
+            bullet = Bullet(self)
+            bullet_manager.add_bullet(bullet)
+            self.shooting_time += random.randint(30, 50)
